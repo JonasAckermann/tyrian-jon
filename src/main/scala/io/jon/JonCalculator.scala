@@ -21,7 +21,6 @@ object JonCalculator extends TyrianApp[Msg, Model]:
     case Msg.Clear     => (Model.empty, Cmd.Empty) // TODO also clear view
 
   def view(model: Model): Html[Msg] =
-    // TODO more exact feedback
     val message: String = model.jons match
       case Left(Error.ParseError(msg))       => s"Could not parse input: $msg"
       case Left(Error.CalculationError(msg)) => s"Could not calculate jon: $msg"
