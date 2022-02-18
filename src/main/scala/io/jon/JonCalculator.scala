@@ -21,11 +21,19 @@ object JonCalculator extends TyrianApp[Msg, Model]:
     case Msg.Clear     => (Model.empty, Cmd.Empty) // TODO also clear view
 
   def view(model: Model): Html[Msg] =
-    val message: String = model.jons match
-      case Left(Error.ParseError(msg))       => s"Could not parse input: $msg"
-      case Left(Error.CalculationError(msg)) => s"Could not calculate jon: $msg"
-      case Right(jon) => s"Your drink has $jon jon!" // TODO truncate
-    // TODO more fine grained styles
+    // val message: String = model.jons match
+    //   case Left(Error.ParseError(msg))       => s"Could not parse input: $msg"
+    //   case Left(Error.CalculationError(msg)) => s"Could not calculate jon: $msg"
+    //   case Right(jon) => s"Your drink has $jon jon!" // TODO truncate
+
+    val message = model.jons match
+      case Left(Error.ParseError(msg)) =>
+        div(`class` := "failresult")(s"Could not parse input: $msg")
+      case Left(Error.CalculationError(msg)) =>
+        div(`class` := "failresult")(s"Could not calculate jon: $msg")
+      case Right(jon) =>
+        div(`class` := "result")(s"Your drink has $jon jon!") // TODO truncate
+
     div(`class` := "container")(
       div(`class` := "largetext")(
         text("🍻")
@@ -51,8 +59,7 @@ object JonCalculator extends TyrianApp[Msg, Model]:
           onInput(s => Msg.UpdatePrice(s))
         )
       ),
-      // TODO class reference
-      div(`class` := "result")(message),
+      message,
       div(
         button(onClick(Msg.Calculate))("Calculate!"),
         button(onClick(Msg.Clear))("Clear!")
