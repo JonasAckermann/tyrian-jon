@@ -28,6 +28,8 @@ object JonCalculator extends TyrianApp[Msg, Model]:
     // TODO more fine grained styles
     div(
       div(
+        text("🍻"),
+        br,
         text("A jon is a unit of efficiency in drink purchasing."),
         br,
         text("1 jon is defined as 1 ml pure alcohol per Euro.")
