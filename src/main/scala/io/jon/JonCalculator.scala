@@ -21,11 +21,6 @@ object JonCalculator extends TyrianApp[Msg, Model]:
     case Msg.Clear     => (Model.empty, Cmd.Empty) // TODO also clear view
 
   def view(model: Model): Html[Msg] =
-    // val message: String = model.jons match
-    //   case Left(Error.ParseError(msg))       => s"Could not parse input: $msg"
-    //   case Left(Error.CalculationError(msg)) => s"Could not calculate jon: $msg"
-    //   case Right(jon) => s"Your drink has $jon jon!" // TODO truncate
-
     val message = model.jons match
       case Left(Error.ParseError(msg)) =>
         div(`class` := "failresult")(s"Could not parse input: $msg")
@@ -33,6 +28,11 @@ object JonCalculator extends TyrianApp[Msg, Model]:
         div(`class` := "failresult")(s"Could not calculate jon: $msg")
       case Right(jon) =>
         div(`class` := "result")(s"Your drink has $jon jon!") // TODO truncate
+
+    def valueOf(in: Either[Error, Double]): String = in match
+      case Left(_)      => ""
+      case Right(0.0)   => ""
+      case Right(value) => value.toString
 
     div(`class` := "container")(
       div(`class` := "largetext")(
@@ -46,6 +46,8 @@ object JonCalculator extends TyrianApp[Msg, Model]:
       div(
         input(
           placeholder := "ABV in %",
+          // TODO figure out error here
+          // value       := valueOf(model.abv),
           onInput(s => Msg.UpdateAbv(s))
         ),
         br,
