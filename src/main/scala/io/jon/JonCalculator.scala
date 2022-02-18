@@ -25,35 +25,34 @@ object JonCalculator extends TyrianApp[Msg, Model]:
       case Left(Error.ParseError(msg))       => s"Could not parse input: $msg"
       case Left(Error.CalculationError(msg)) => s"Could not calculate jon: $msg"
       case Right(jon) => s"Your drink has $jon jon!" // TODO truncate
+    // TODO more fine grained styles
     div(
-      // TODO line breaks without divs?
       div(
-        "A jon is a unit of efficiency in drink purchasing."
-      ),
-      div(
-        "1 jon is defined as 1 ml pure alcohol per Euro"
+        text("A jon is a unit of efficiency in drink purchasing."),
+        br,
+        text("1 jon is defined as 1 ml pure alcohol per Euro.")
       ),
       div(
         input(
           placeholder := "ABV in %",
           onInput(s => Msg.UpdateAbv(s))
-        )
-      ),
-      div(
+        ),
+        br,
         input(
           placeholder := "Volume in ml",
           onInput(s => Msg.UpdateVolume(s))
-        )
-      ),
-      div(
+        ),
+        br,
         input(
           placeholder := "Price in Euro",
           onInput(s => Msg.UpdatePrice(s))
         )
       ),
       div(message),
-      button(onClick(Msg.Calculate))("Calculate!"),
-      button(onClick(Msg.Clear))("Clear!")
+      div(
+        button(onClick(Msg.Calculate))("Calculate!"),
+        button(onClick(Msg.Clear))("Clear!")
+      )
     )
 
   def subscriptions(model: Model): Sub[Msg] =
