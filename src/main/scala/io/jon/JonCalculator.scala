@@ -56,6 +56,10 @@ object JonCalculator extends TyrianApp[Msg, Model]:
   def subscriptions(model: Model): Sub[Msg] =
     Sub.Empty
 
+enum Error(msg: String):
+  case ParseError(msg: String)       extends Error(msg)
+  case CalculationError(msg: String) extends Error(msg)
+
 //TODO play around with refinement types
 // TODO make units dropdown
 // TODO make custom types
