@@ -24,7 +24,7 @@ object JonCalculator extends TyrianApp[Msg, Model]:
     val message: String = model.jons match
       case Left(Error.ParseError(msg))       => s"Could not parse input: $msg"
       case Left(Error.CalculationError(msg)) => s"Could not calculate jon: $msg"
-      case Right(jon)                        => s"Your drink has $jon jon!"
+      case Right(jon) => s"Your drink has $jon jon!" // TODO truncate
     div(
       // TODO line breaks without divs?
       div(
@@ -51,8 +51,6 @@ object JonCalculator extends TyrianApp[Msg, Model]:
           onInput(s => Msg.UpdatePrice(s))
         )
       ),
-      // TODO truncate
-      // TODO only show if non-optional
       div(message),
       button(onClick(Msg.Calculate))("Calculate!"),
       button(onClick(Msg.Clear))("Clear!")
