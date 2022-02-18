@@ -32,3 +32,21 @@ div {
 .failresult {
   color: $fail-color;
 }
+button {
+  border: 3px;
+  border-radius: 10px;
+  border-style: solid;
+  border-color: rgb(223, 192, 18);
+  padding: auto;
+  margin: auto;
+  background-color: rgb(241, 229, 157);
+}
+input {
+  border: 2px;
+  border-radius: 10px;
+  border-style: solid;
+  border-color: rgb(223, 192, 18);
+  padding: auto;
+  margin: auto;
+  background-color: rgb(241, 229, 157);
+}
