@@ -78,7 +78,6 @@ enum Error(msg: String):
 //TODO play around with refinement types
 // TODO make units dropdown
 // TODO make custom types
-// TODO can I make more specific errors?
 case class Model(
     abv: Either[Error, Double],
     price: Either[Error, Double],
@@ -86,30 +85,19 @@ case class Model(
     jons: Either[Error, Double]
 ): // Make output part of model to only update on click.
 
+  private def parseToEither(in: String, label: String): Either[Error, Double] =
+    Try(in.toDouble).toEither.left.map(_ =>
+      Error.ParseError(s"Could not parse $label: $in")
+    )
+
   def updateAbv(newAbv: String) =
-    // TODO read up on try and either
-    val maybeParsed = Try(newAbv.toDouble)
-    val updatedAbv =
-      if (maybeParsed.isFailure)
-        Left(Error.ParseError(s"Could not parse ABV: $newAbv"))
-      else Right(maybeParsed.get) // is this even scala
-    this.copy(abv = updatedAbv)
+    this.copy(abv = parseToEither(newAbv, "ABV"))
 
   def updatePrice(newPrice: String) =
-    val maybeParsed = Try(newPrice.toDouble)
-    val updatedPrice =
-      if (maybeParsed.isFailure)
-        Left(Error.ParseError(s"Could not parse Price: $newPrice"))
-      else Right(maybeParsed.get) // is this even scala
-    this.copy(price = updatedPrice)
+    this.copy(price = parseToEither(newPrice, "price"))
 
   def updateVolume(newVolume: String) =
-    val maybeParsed = Try(newVolume.toDouble)
-    val updatedVolume =
-      if (maybeParsed.isFailure)
-        Left(Error.ParseError(s"Could not parse Volume: $newVolume"))
-      else Right(maybeParsed.get) // is this even scala
-    this.copy(volume = updatedVolume)
+    this.copy(volume = parseToEither(newVolume, "volume"))
 
   def calculateJons =
     val jons: Either[Error, Double] = for {
@@ -117,13 +105,10 @@ case class Model(
       a <- abv
       p <- price
       _ = println(s"$v, $a, $p")
-      // Weirdly division by 0 does not throw
+      // Weirdly division by 0 does not throw. Can't think of any other failure, so handle this one manually
       j <-
         if (p == 0) Left(Error.CalculationError("Price can not be 0.0"))
-        else
-          Try((v * a * 0.01) / p).toEither.left.map(err =>
-            Error.CalculationError(err.getMessage)
-          )
+        else Right((v * a * 0.01) / p)
     } yield j
     this.copy(jons = jons)
 
