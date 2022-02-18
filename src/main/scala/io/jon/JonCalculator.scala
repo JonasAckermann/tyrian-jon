@@ -4,6 +4,7 @@ import tyrian.Html.*
 import tyrian.*
 
 import scala.scalajs.js.annotation.*
+import scala.util.Try
 
 @JSExportTopLevel("TyrianApp")
 object JonCalculator extends TyrianApp[Msg, Model]:
@@ -20,6 +21,11 @@ object JonCalculator extends TyrianApp[Msg, Model]:
     case Msg.Clear     => (Model.empty, Cmd.Empty) // TODO also clear view
 
   def view(model: Model): Html[Msg] =
+    // TODO more exact feedback
+    val message: String = model.jons match
+      case Left(Error.ParseError(msg))       => s"Could not parse input: $msg"
+      case Left(Error.CalculationError(msg)) => s"Could not calculate jon: $msg"
+      case Right(jon)                        => s"Your drink has $jon jon!"
     div(
       // TODO line breaks without divs?
       div(
@@ -31,24 +37,24 @@ object JonCalculator extends TyrianApp[Msg, Model]:
       div(
         input(
           placeholder := "ABV in %",
-          onInput(s => Msg.UpdateAbv(s.toDouble))
+          onInput(s => Msg.UpdateAbv(s))
         )
       ),
       div(
         input(
           placeholder := "Volume in ml",
-          onInput(s => Msg.UpdateVolume(s.toDouble))
+          onInput(s => Msg.UpdateVolume(s))
         )
       ),
       div(
         input(
           placeholder := "Price in Euro",
-          onInput(s => Msg.UpdatePrice(s.toDouble))
+          onInput(s => Msg.UpdatePrice(s))
         )
       ),
       // TODO truncate
       // TODO only show if non-optional
-      div(s"Your drink has ${model.jons.toString} jon!"),
+      div(message),
       button(onClick(Msg.Calculate))("Calculate!"),
       button(onClick(Msg.Clear))("Clear!")
     )
@@ -63,27 +69,66 @@ enum Error(msg: String):
 //TODO play around with refinement types
 // TODO make units dropdown
 // TODO make custom types
+// TODO can I make more specific errors?
 case class Model(
-    abv: Double,
-    price: Double,
-    volume: Double,
-    jons: Double
-): // Make output part of model to only update on click. TODO smart?
-  def updateAbv(newAbv: Double)       = this.copy(abv = newAbv)
-  def updatePrice(newPrice: Double)   = this.copy(price = newPrice)
-  def updateVolume(newVolume: Double) = this.copy(volume = newVolume)
+    abv: Either[Error, Double],
+    price: Either[Error, Double],
+    volume: Either[Error, Double],
+    jons: Either[Error, Double]
+): // Make output part of model to only update on click.
+
+  def updateAbv(newAbv: String) =
+    val maybeParsed = Try(newAbv.toDouble)
+    val updatedAbv =
+      if (maybeParsed.isFailure)
+        Left(Error.ParseError(s"Could not parse ABV: $newAbv"))
+      else Right(maybeParsed.get) // is this even scala
+    this.copy(abv = updatedAbv)
+
+  def updatePrice(newPrice: String) =
+    val maybeParsed = Try(newPrice.toDouble)
+    val updatedPrice =
+      if (maybeParsed.isFailure)
+        Left(Error.ParseError(s"Could not parse Price: $newPrice"))
+      else Right(maybeParsed.get) // is this even scala
+    this.copy(price = updatedPrice)
+
+  def updateVolume(newVolume: String) =
+    val maybeParsed = Try(newVolume.toDouble)
+    val updatedVolume =
+      if (maybeParsed.isFailure)
+        Left(Error.ParseError(s"Could not parse Volume: $newVolume"))
+      else Right(maybeParsed.get) // is this even scala
+    this.copy(volume = updatedVolume)
+
   def calculateJons =
-    this.copy(jons = (volume * abv * 0.01) / price) // TODO this sucks
+    val jons: Either[Error, Double] = for {
+      v <- volume
+      a <- abv
+      p <- price
+      _ = println(s"$v, $a, $p")
+      // Weirdly division by 0 does not throw
+      j <-
+        if (p == 0) Left(Error.CalculationError("Price can not be 0.0"))
+        else
+          Try((v * a * 0.01) / p).toEither.left.map(err =>
+            Error.CalculationError(err.getMessage)
+          )
+    } yield j
+    this.copy(jons = jons)
 
 object Model:
-  // TODO make empty model use optional
-  val empty: Model = Model(0.0, 0.0, 0.0, 0.0)
+  val empty: Model =
+    Model(
+      Right(0.0),
+      Right(0.0),
+      Right(0.0),
+      Right(0.0)
+    ).calculateJons // Need to initialize
 
-// TODO Enum for case classes?
-// TODO errors
 enum Msg:
-  case UpdateAbv(newAbv: Double)
-  case UpdatePrice(newPrice: Double)
-  case UpdateVolume(newVolume: Double)
+  case UpdateAbv(newAbv: String)
+  case UpdatePrice(newPrice: String)
+  case UpdateVolume(newVolume: String)
   case Calculate
   case Clear
