@@ -51,7 +51,8 @@ object JonCalculator extends TyrianApp[Msg, Model]:
           onInput(s => Msg.UpdatePrice(s))
         )
       ),
-      div(message),
+      // TODO class reference
+      div(`class` := "result")(message),
       div(
         button(onClick(Msg.Calculate))("Calculate!"),
         button(onClick(Msg.Clear))("Clear!")
