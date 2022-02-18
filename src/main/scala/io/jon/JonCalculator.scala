@@ -75,6 +75,7 @@ case class Model(
 ): // Make output part of model to only update on click.
 
   def updateAbv(newAbv: String) =
+    // TODO read up on try and either
     val maybeParsed = Try(newAbv.toDouble)
     val updatedAbv =
       if (maybeParsed.isFailure)
