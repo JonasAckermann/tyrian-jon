@@ -26,10 +26,11 @@ object JonCalculator extends TyrianApp[Msg, Model]:
       case Left(Error.CalculationError(msg)) => s"Could not calculate jon: $msg"
       case Right(jon) => s"Your drink has $jon jon!" // TODO truncate
     // TODO more fine grained styles
-    div(
+    div(`class` := "container")(
+      div(`class` := "largetext")(
+        text("🍻")
+      ),
       div(
-        text("🍻"),
-        br,
         text("A jon is a unit of efficiency in drink purchasing."),
         br,
         text("1 jon is defined as 1 ml pure alcohol per Euro.")

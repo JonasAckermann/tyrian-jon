@@ -6,10 +6,21 @@ $primary-color: #333;
 body {
   font: 12pt $font-stack;
   color: $primary-color;
+  background-color: rgb(245, 243, 224);
 }
 div {
   margin: auto;
   text-align: center;
   align-items: center;
   padding-top: 1%;
+}
+.container {
+  padding: 10px;
+  border: 3px;
+  border-radius: 20px;
+  border-style: solid;
+  border-color: rgb(223, 192, 18);
+}
+.largetext {
+  font: 92pt $font-stack;
 }
